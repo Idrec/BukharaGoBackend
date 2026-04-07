@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BukharaGo WebApp — пример</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  </head>
+  <body>
+    <pre id="out">Загрузка…</pre>
+    <script>
+      (function () {
+        var API_BASE = "http://127.0.0.1:8000"; // замените на URL вашего Django
+
+        var tg = window.Telegram && window.Telegram.WebApp;
+        var out = document.getElementById("out");
+
+        if (!tg) {
+          out.textContent = "Откройте страницу из Telegram Mini App";
+          return;
+        }
+        tg.ready();
+        tg.expand();
+
+        var user = tg.initDataUnsafe && tg.initDataUnsafe.user;
+        if (!user || !tg.initData) {
+          out.textContent = "Нет user или initData у Telegram WebApp";
+          return;
+        }
+
+        var payload = {
+          init_data: tg.initData,
+          user: {
+            id: user.id,
+            first_name: user.first_name || "",
+            last_name: user.last_name || "",
+            username: user.username || null,
+          },
+        };
+
+        fetch(API_BASE + "/api/auth/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+          .then(function (r) {
+            return r.json().then(function (j) {
+              if (!r.ok) throw new Error(JSON.stringify(j));
+              return j;
+            });
+          })
+          .then(function (data) {
+            out.textContent = JSON.stringify(data, null, 2);
+          })
+          .catch(function (e) {
+            out.textContent = "Ошибка: " + e;
+          });
+      })();
+    </script>
+  </body>
+</html>
