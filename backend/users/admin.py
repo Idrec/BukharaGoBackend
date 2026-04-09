@@ -10,9 +10,13 @@ class TelegramUserAdmin(admin.ModelAdmin):
         "username",
         "first_name",
         "last_name",
+        "role",
+        "country",
+        "region",
+        "city",
         "is_active",
         "created_at",
     )
     search_fields = ("telegram_id", "username", "first_name", "last_name")
-    list_filter = ("is_active", "created_at")
-    readonly_fields = ("created_at",)
+    list_filter = ("role", "is_active", "country", "region", "city", "created_at")
+    readonly_fields = ("created_at", "updated_at")

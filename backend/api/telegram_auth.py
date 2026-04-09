@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import json
 import os
 from pathlib import Path
 from urllib.parse import parse_qs
@@ -45,4 +46,17 @@ def validate_telegram_data(init_data: str) -> bool:
     ).hexdigest()
 
     return hmac.compare_digest(hmac_hash, hash_)
+
+
+def extract_telegram_user_id(init_data: str) -> int | None:
+    parsed_data = parse_qs(init_data)
+    raw_user = parsed_data.get("user", [None])[0]
+    if not raw_user:
+        return None
+    try:
+        payload = json.loads(raw_user)
+    except json.JSONDecodeError:
+        return None
+    user_id = payload.get("id")
+    return user_id if isinstance(user_id, int) and user_id > 0 else None
 
